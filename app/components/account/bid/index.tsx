@@ -11,27 +11,25 @@ import {toast} from "vue-sonner";
 
 export default defineComponent({
     setup() {
-        const email = ref("")
-        const full_name = ref("")
-        const phone = ref("")
-        const password = ref("")
-        const role = ref("")
-        function clickRegisterButton() {
+        const equipment_id = ref("")
+        const term_months = ref("")
+        const rate = ref("")
+        const payment_scheme = ref("")
+        function clickCreateBidButton() {
             // Отправить POST-запрос
             axios({
                 method: 'post',
-                url: 'http://localhost:8000/register',
+                url: 'http://localhost:8000/api/leases/create',
                 data: {
-                    email: email.value,
-                    full_name: full_name.value,
-                    phone: phone.value,
-                    role: role.value,
-                    password: password.value
+                    equipment_id: equipment_id.value,
+                    term: term_months.value,
+                    rate: rate.value,
+                    payment_scheme: payment_scheme.value
                 }
             }).then(function (response) {
-                toast.success('Регистрация прошла успешно!')
+                toast.success('Заявка создана успешно!')
             }).catch(function (error) {
-                toast.error('При регистрации !')
+                toast.error('Ошибка при создании заявки!')
             });
 
         }
@@ -47,61 +45,49 @@ export default defineComponent({
                                 <span class="sr-only">Лизингомания</span>
                             </a>
                             <h1 class="text-xl font-bold">
-                                Welcome to ASS!
+                                Оставьте заявку на оборудование!
                             </h1>
                             <FieldDescription>
-                                Давайте знакомиться!
+                                Заполните форму!
                             </FieldDescription>
                         </div>
                         <Field>
                             <FieldLabel>
-                                Email
+                                Id оборудования
                             </FieldLabel>
-                            <Input type={'email'} placeholder={'example@email.com'} modelValue={email.value} onUpdate:modelValue={(v: string) => (email.value = v)} required/>
+                            <Input type={'equipmentId'} placeholder={'1234'} modelValue={equipment_id.value} onUpdate:modelValue={(v: string) => (equipment_id.value = v)} required/>
                         </Field>
                         <Field>
                             <FieldLabel>
-                                ФИО
+                                Срок (месяцы)
                             </FieldLabel>
-                            <Input type={'text'} placeholder={'Иванов Иван Иванович'} modelValue={full_name.value} onUpdate:modelValue={(v: string) => (full_name.value = v)} required/>
+                            <Input type={'months'} placeholder={'10'} modelValue={term_months.value} onUpdate:modelValue={(v: string) => (term_months.value = v)} required/>
                         </Field>
                         <Field>
                             <FieldLabel>
-                                Телефон
+                                Ставка %
                             </FieldLabel>
-                            <Input type={'phone'} placeholder={'+7 (999) 999-99-99'} modelValue={phone.value} onUpdate:modelValue={(v: string) => (phone.value = v)} required/>
-                        </Field>
-                        <Field>
-                            <FieldLabel>
-                                Пароль
-                            </FieldLabel>
-                            <Input type={'password'} placeholder={'********'} modelValue={password.value} onUpdate:modelValue={(v: string) => (password.value = v)} required/>
+                            <Input type={'rate'} placeholder={'13%'} modelValue={rate.value} onUpdate:modelValue={(v: string) => (rate.value = v)} required/>
                         </Field>
                         <FormField name={ 'behaviour' }>
                             {
                                 ({ componentField }: { componentField: ComponentFieldBindingObject }) => (
                                     <FormItem>
-                                        <FormLabel>Роль</FormLabel>
-                                        <Select { ...componentField } modelValue={role.value}
-                                                onUpdate:modelValue={(v: string) => (role.value = v)}>
+                                        <FormLabel>Схема платежа</FormLabel>
+                                        <Select { ...componentField } modelValue={payment_scheme.value}
+                                                onUpdate:modelValue={(v: string) => (payment_scheme.value = v)}>
                                             <FormControl>
                                                 <SelectTrigger class={'w-full'}>
-                                                    <SelectValue placeholder={ 'Выберите роль' } />
+                                                    <SelectValue placeholder={ 'Выберите тип платежа' } />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem value={ 'Client' }>
-                                                        Лизингополучатель
+                                                    <SelectItem value={ 'Annuitet' }>
+                                                        Аннуитет
                                                     </SelectItem>
                                                     <SelectItem value={ 'Manager' }>
-                                                        Лизингодатель
-                                                    </SelectItem>
-                                                    <SelectItem value={ 'Supplier' }>
-                                                        Поставщик оборудования
-                                                    </SelectItem>
-                                                    <SelectItem value={ 'Admin' }>
-                                                        Администратор
+                                                        Дифференцированная
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
@@ -114,8 +100,8 @@ export default defineComponent({
                         </Field>
                     </FieldGroup>
                 </form>
-                <Button onClick={clickRegisterButton}>
-                    Зарегистрироваться
+                <Button onClick={clickCreateBidButton}>
+                    Создать заявку
                 </Button>
             </div>
         )

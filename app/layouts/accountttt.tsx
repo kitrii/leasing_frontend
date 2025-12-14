@@ -1,14 +1,12 @@
-import AppNavMenu from "~/components/layout/app-nav-menu";
-import {Toaster} from "~/components/ui/sonner";
-import 'vue-sonner/style.css'
+import Sidebar from "~/components/sidebar-app-menu/sidebar-app-menu-create-order";
+
 
 export default defineComponent({
     setup(_, {slots}) {
         return () => (
             <div class={ 'min-w-0 w-full h-full flex-1 overflow-x-auto p-4' }>
-                <AppNavMenu/>
+                <Sidebar/>
                 { slots.default?.() }
-                <Toaster position="top-right"/>
             </div>
         )
     }
