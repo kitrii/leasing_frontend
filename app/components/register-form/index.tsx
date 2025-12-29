@@ -31,7 +31,9 @@ export default defineComponent({
             }).then(function (response) {
                 toast.success('Регистрация прошла успешно!')
             }).catch(function (error) {
-                toast.error('При регистрации !')
+                const message = 'При регистрации произошла ошибка! ';
+                const detailed = error.response?.data?.detail || error.message || '';
+                toast.error(`${message}${detailed}`);
             });
 
         }

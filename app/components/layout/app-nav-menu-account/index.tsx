@@ -1,3 +1,4 @@
+import { useAuthStore } from '~/stores/auth'
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -10,27 +11,52 @@ import {
 } from '@/components/ui/navigation-menu'
 import {NuxtLink} from "#components";
 
-
 export default defineComponent({
     setup() {
-        return () => (
-            <div>
-                <NavigationMenu>
-                    <NavigationMenuList class={'flex-wrap'}>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink asChild>
-                                <NuxtLink to={'/login'}>Вход</NuxtLink>
-                            </NavigationMenuLink>
+        const auth = useAuthStore()
+        const router = useRouter()
 
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink asChild>
-                                <NuxtLink to={'/register'}>Регистрация</NuxtLink>
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                    </NavigationMenuList>
-                </NavigationMenu>
-            </div>
+        const logout = () => {
+            auth.logout()
+            router.push('/')
+        }
+
+        return () => (
+            <NavigationMenu>
+                <NavigationMenuList>
+                    {!auth.isAuthenticated ? (
+                        <>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <NuxtLink to="/login">Вход</NuxtLink>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <NuxtLink to="/register">Регистрация</NuxtLink>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        </>
+                    ) : (
+                        <>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <NuxtLink to={`/account/${auth.userId}`}>
+                                        Личный кабинет
+                                    </NuxtLink>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+
+                            <NavigationMenuItem>
+                                <NavigationMenuLink onClick={logout}>
+                                    Выйти
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        </>
+                    )}
+                </NavigationMenuList>
+            </NavigationMenu>
         )
     }
 })

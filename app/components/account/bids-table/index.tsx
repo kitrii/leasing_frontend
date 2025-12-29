@@ -7,25 +7,27 @@ export default defineComponent({
     setup() {
         const route = useRoute()
         // const userId = route.params.user_id as string
-        const userId = 1
         const statusFilter = ref<string>('all')
         const orderDate = ref<'asc' | 'desc'>('desc')
         const leases = ref<any[]>([])
         const loading = ref(false)
+        const auth = useAuthStore()
+
+        const userId = computed(() => auth.userId)
 
         async function fetchLeases() {
             loading.value = true
             try {
                 const response = await axios.get(
-                    'http://localhost:8000/api/leases/list',
+                    `http://localhost:8000/api/leases/list/${userId.value}`,
                     {
                         params: {
-                            user_id: userId,
                             status: statusFilter.value,
                             order_data: orderDate.value,
                         },
                     }
                 )
+
 
                 leases.value = response.data.leases
             } catch (e) {
@@ -36,7 +38,7 @@ export default defineComponent({
         }
 
         onMounted(fetchLeases)
-        watch([statusFilter, orderDate], () => {
+        watch([statusFilter, orderDate, userId], () => {
             fetchLeases()
         })
 

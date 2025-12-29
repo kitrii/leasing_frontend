@@ -1,6 +1,7 @@
 import {Field, FieldDescription, FieldGroup, FieldLabel} from "~/components/ui/field";
 import {Input} from "~/components/ui/input";
 import {Button} from "~/components/ui/button";
+import {useAuthStore} from "~/stores/auth";
 import axios from "axios"
 import {toast} from "vue-sonner";
 
@@ -10,24 +11,24 @@ export default defineComponent({
         const router = useRouter()
         const email = ref("")
         const password = ref("")
+        const auth = useAuthStore()
 
-        function clickLoginButton() {
-            // Отправить POST-запрос
-            const response = axios({
-                method: 'post',
-                url: 'http://localhost:8000/login',
-                data: {
+        async function clickLoginButton() {
+            console.log('LOGIN CLICK')
+            try {
+                const response = await axios.post('http://localhost:8000/login', {
                     email: email.value,
-                    password: password.value
-                }
-            }).then(function (redirectToUserAccount) {
-                const userId = redirectToUserAccount.data.user_id
-                router.push('/account/${userId}')
-            }).catch(function (error) {
+                    password: password.value,
+                })
+                console.log(response.data)
+                const userId = response.data.user_id
+                auth.login(userId)
+                router.push(`/account/${userId}`)
+            } catch (error) {
                 toast.error('При входе возникла ошибка!')
-            });
-
+            }
         }
+
         return() => (
             <div class={'flex flex-col gap-6'}>
                 <form>
@@ -62,7 +63,7 @@ export default defineComponent({
                         </Field>
                     </FieldGroup>
                 </form>
-                <Button onClick={clickLoginButton}>
+                <Button type="button" onClick={clickLoginButton}>
                     Войти
                 </Button>
             </div>

@@ -15,12 +15,17 @@ export default defineComponent({
         const term_months = ref("")
         const rate = ref("")
         const payment_scheme = ref("")
+        const auth = useAuthStore()
+        const userId = computed(() => auth.userId)
         function clickCreateBidButton() {
             // Отправить POST-запрос
             axios({
                 method: 'post',
                 url: 'http://localhost:8000/api/leases/create',
                 data: {
+                    user_id: userId.value,
+                    advance: 100,
+                    amount: 200000,
                     equipment_id: equipment_id.value,
                     term: term_months.value,
                     rate: rate.value,
@@ -83,10 +88,10 @@ export default defineComponent({
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem value={ 'Annuitet' }>
+                                                    <SelectItem value={ 'annuity' }>
                                                         Аннуитет
                                                     </SelectItem>
-                                                    <SelectItem value={ 'Manager' }>
+                                                    <SelectItem value={ 'differentiated' }>
                                                         Дифференцированная
                                                     </SelectItem>
                                                 </SelectGroup>

@@ -12,5 +12,5 @@ export default defineNuxtConfig({
       ],
   },
 
-  modules: ['shadcn-nuxt'],
+  modules: ['shadcn-nuxt', '@pinia/nuxt'],
 })
