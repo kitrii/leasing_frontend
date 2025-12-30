@@ -1,14 +1,16 @@
 import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "~/components/ui/table";
 import axios from "axios";
-import { onMounted } from "vue"
+import {computed, onMounted} from "vue"
+import {useAuthStore} from "~/stores/auth";
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         // const userId = route.params.user_id as string
-        const userId = 1
         const payments = ref<any[]>([])
         const loading = ref(false)
+        const auth = useAuthStore()
+        const userId = computed(() => auth.userId)
 
         async function fetchPayments() {
             loading.value = true
@@ -17,7 +19,7 @@ export default defineComponent({
                     'http://localhost:8000/api/payments/list',
                     {
                         params: {
-                            user_id: userId,
+                            user_id: userId.value,
                         },
                     }
                 )

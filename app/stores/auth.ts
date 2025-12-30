@@ -4,12 +4,14 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         isAuthenticated: false,
         userId: null as number | null,
+        role: null as 'client' | 'supplier' | 'manager' | null, // <-- добавили роль
     }),
 
     actions: {
-        login(userId: number) {
+        login(userId: number, role: 'client' | 'supplier' | 'manager') {
             this.isAuthenticated = true
             this.userId = userId
+            this.role = role
 
             localStorage.setItem(
                 'auth',
@@ -20,6 +22,7 @@ export const useAuthStore = defineStore('auth', {
         logout() {
             this.isAuthenticated = false
             this.userId = null
+            this.role = null
             localStorage.removeItem('auth')
         },
 
@@ -29,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
                 const parsed = JSON.parse(data)
                 this.isAuthenticated = true
                 this.userId = parsed.userId
+                this.role = parsed.role ?? null
             }
         }
     }

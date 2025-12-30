@@ -194,6 +194,8 @@ export default defineComponent({
                                     <h3 class="font-semibold text-base">
                                         {item.name}
                                     </h3>
+                                    {/* ID оборудования */}
+                                    <p class="font-semibold text-base">ID оборудования: {item.id}</p>
 
                                     <p class="text-sm text-muted-foreground">
                                         {item.description}

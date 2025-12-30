@@ -78,10 +78,6 @@ export default defineComponent({
                         Токарные, фрезерные и лазерные станки для промышленного производства.
                         Оформление в лизинг на выгодных условиях.
                     </p>
-
-                    <Button onClick={applyFilters}>
-                        Подобрать по параметрам
-                    </Button>
                 </section>
 
                 {/* ФИЛЬТРЫ */}
@@ -95,7 +91,7 @@ export default defineComponent({
                         />
                         <Slider
                             min={0}
-                            max={150_000_000}
+                            max={250_000_000}
                             step={1_000_000}
                             modelValue={price.value}
                             onUpdate:modelValue={(v) => (price.value = v)}
@@ -132,13 +128,16 @@ export default defineComponent({
                     <div>
                         <label class="text-sm font-medium">Год выпуска</label>
                         <Slider
-                            min={2005}
+                            min={2000}
                             max={2025}
                             modelValue={year.value}
                             onUpdate:modelValue={(v) => (year.value = v)}
                         />
                         <div class="flex justify-between text-sm text-muted-foreground">
-                            <span>0</span>
+                            <span>2000</span>
+                            <span>2005</span>
+                            <span>2010</span>
+                            <span>2020</span>
                             <span>2021</span>
                             <span>2022</span>
                             <span>2023</span>
@@ -194,6 +193,8 @@ export default defineComponent({
                                     <h3 class="font-semibold text-base">
                                         {item.name}
                                     </h3>
+                                    {/* ID оборудования */}
+                                    <p class="font-semibold text-base">ID оборудования: {item.id}</p>
 
                                     <p class="text-sm text-muted-foreground">
                                         {item.description}

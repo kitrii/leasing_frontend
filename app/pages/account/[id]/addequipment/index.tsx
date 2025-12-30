@@ -1,13 +1,17 @@
+import { defineComponent, ref } from "vue"
 import AccountLayout from "~/components/layout/account-layout";
-import AccountPayments from "~/components/account/payments";
+import {AccountAddEquipment} from "#components";
 
+// Енам для типов оборудования
 
 export default defineComponent({
     setup() {
         return () => (
             <AccountLayout>
                 <div class={'flex min-h-svh flex-col items-center'}>
-                    Приветики вы в личном кабинете!
+                    <div class={'w-full'}>
+                        <AccountAddEquipment/>
+                    </div>
                 </div>
             </AccountLayout>
         )

@@ -1,5 +1,6 @@
 import AccountLayout from "~/components/layout/account-layout";
-import AccountPayments from "~/components/account/payments";
+import AllBidsTable from "~/components/account/all-bids-table";
+import {AccountBidsTable} from "#components";
 
 
 export default defineComponent({
@@ -7,7 +8,9 @@ export default defineComponent({
         return () => (
             <AccountLayout>
                 <div class={'flex min-h-svh flex-col items-center'}>
-                    Приветики вы в личном кабинете!
+                    <div class={'w-full'}>
+                        <AllBidsTable/>
+                    </div>
                 </div>
             </AccountLayout>
         )

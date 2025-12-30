@@ -1,34 +1,47 @@
-import SidebarAppMenu from "~/components/layout/sidebar-app-menu";
-import {Separator} from "~/components/ui/separator";
+import SidebarClient from "~/components/layout/sidebar-client"
+import SidebarSupplier from "~/components/layout/sidebar-supplier"
+import SidebarManager from "~/components/layout/sidebar-manager"
+import { Separator } from "~/components/ui/separator"
 
 export default defineComponent({
-    setup(_, {slots}) {
-        function onButtonClick() {
+    setup(_, { slots }) {
+        const auth = useAuthStore()
 
-        }
+
+        const SidebarByRole = computed(() => {
+            switch (auth.role) {
+                case 'supplier':
+                    return <SidebarSupplier />
+                case 'manager':
+                    return <SidebarManager />
+                default:
+                    return <SidebarClient />
+            }
+        })
 
         return () => (
-            <div class={'pb-16 space-y-6'}>
-                <div class={'space-y-0.5'}>
-                    <h2 class={'text-2xl font-bold tracking-tight'}>
-                        Личный кабинет
-                    </h2>
-                    <p class={'text-muted-foreground'}>
-                        Личный кабинет юзера, Катя потом что-нибудь придумает обязательно
+            <div class="pb-16 space-y-6 w-full">
+                <div class="space-y-0.5">
+                    <h2 class="text-2xl font-bold tracking-tight">Личный кабинет</h2>
+                    <p class="text-muted-foreground">
+                        Управление аккаунтом
                     </p>
                 </div>
-                <Separator/>
-                <div class={'flex flex-col lg:flex-row space-y-6 lg:space-x-12 lg:space-y-0'}>
-                    <div class={'w-full overflow-x-auto pb-2 lg:w-1/6 lg:pb-0'}>
-                        <SidebarAppMenu/>
-                    </div>
-                    <div class={'flex-1 lg:max-w-2xl'}>
-                        <div class={'space-y-6'}>
-                            { slots.default?.() }
-                        </div>
-                    </div>
+
+                <Separator />
+
+                <div class="flex gap-12">
+                    {/* SIDEBAR */}
+                    <aside class="w-64 shrink-0">
+                        {SidebarByRole.value}
+                    </aside>
+
+                    {/* CONTENT */}
+                    <main class="flex-1 w-full">
+                        {slots.default?.()}
+                    </main>
                 </div>
             </div>
         )
-    }
+    },
 })

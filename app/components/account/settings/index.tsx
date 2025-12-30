@@ -10,6 +10,8 @@ import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import axios from "axios"
 import { toast } from "vue-sonner"
+import { Eye, EyeOff } from "lucide-vue-next" // иконки глаза
+
 
 export default defineComponent({
     setup() {
@@ -20,6 +22,9 @@ export default defineComponent({
         const role = ref("")
         const auth = useAuthStore()
         const userId = computed(() => auth.userId)
+        const oldPassword = ref("")
+        const showOldPassword = ref(false)
+        const showNewPassword = ref(false)
 
         async function fetchProfile() {
             try {
@@ -47,15 +52,17 @@ export default defineComponent({
         }
 
         async function updatePassword() {
-            if (!password.value) {
-                toast.error("Введите новый пароль")
+            if (!oldPassword.value || !password.value) {
+                toast.error("Заполните оба поля пароля")
                 return
             }
 
             try {
                 await axios.post(`http://localhost:8000/users/${userId.value}/change-password`, {
-                    password: password.value,
+                    old_password: oldPassword.value,
+                    new_password: password.value,
                 })
+                oldPassword.value = ""
                 password.value = ""
                 toast.success("Пароль успешно изменён")
             } catch {
@@ -132,17 +139,47 @@ export default defineComponent({
                     {/* ПАРОЛЬ */}
                     <TabsContent value="password">
                         <FieldGroup>
+                            {/* СТАРЫЙ ПАРОЛЬ */}
+                            <Field>
+                                <FieldLabel>Старый пароль</FieldLabel>
+                                <div class="relative">
+                                    <Input
+                                        type={showOldPassword.value ? "text" : "password"}
+                                        placeholder="Введите старый пароль"
+                                        modelValue={oldPassword.value}
+                                        onUpdate:modelValue={(v: string) => (oldPassword.value = v)}
+                                    />
+                                    <Button
+                                        type="button"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                                        variant="ghost"
+                                        onClick={() => (showOldPassword.value = !showOldPassword.value)}
+                                    >
+                                        {showOldPassword.value ? <EyeOff class="w-5 h-5" /> : <Eye class="w-5 h-5" />}
+                                    </Button>
+                                </div>
+                            </Field>
+
+                            {/* НОВЫЙ ПАРОЛЬ */}
                             <Field>
                                 <FieldLabel>Новый пароль</FieldLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    modelValue={password.value}
-                                    onUpdate:modelValue={(v: string) => (password.value = v)}
-                                />
-                                <FieldDescription>
-                                    Минимум 8 символов
-                                </FieldDescription>
+                                <div class="relative">
+                                    <Input
+                                        type={showNewPassword.value ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        modelValue={password.value}
+                                        onUpdate:modelValue={(v: string) => (password.value = v)}
+                                    />
+                                    <Button
+                                        type="button"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                                        variant="ghost"
+                                        onClick={() => (showNewPassword.value = !showNewPassword.value)}
+                                    >
+                                        {showNewPassword.value ? <EyeOff class="w-5 h-5" /> : <Eye class="w-5 h-5" />}
+                                    </Button>
+                                </div>
+                                <FieldDescription>Минимум 8 символов</FieldDescription>
                             </Field>
 
                             <Button class="mt-4 w-full" onClick={updatePassword}>

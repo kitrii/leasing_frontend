@@ -1,6 +1,5 @@
 
 import AppNavMenuAccount from "~/components/layout/app-nav-menu-account";
-import AppNavMenu from "~/components/layout/app-nav-menu/index";
 import AppNavMenuHeader from "~/components/layout/app-nav-menu-header";
 import AppNavMenuCommon from "~/components/layout/app-nav-menu-common";
 

@@ -23,16 +23,6 @@ export default defineComponent({
                         Настройки
                     </NuxtLink>
                 </Button>
-                <Button class={'w-full text-left justify-start items-start'} variant={'ghost'} asChild>
-                    <NuxtLink to={`/account/${userId.value}/addequipment`}>
-                        Добавить оборудование
-                    </NuxtLink>
-                </Button>
-                <Button class={'w-full text-left justify-start items-start'} variant={'ghost'} asChild>
-                    <NuxtLink to={`/account/${userId.value}/allbidstable`}>
-                        Все заявки
-                    </NuxtLink>
-                </Button>
             </nav>
         )
     },

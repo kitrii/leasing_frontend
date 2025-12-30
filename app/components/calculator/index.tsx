@@ -4,17 +4,46 @@ import { Input } from "~/components/ui/input"
 import { Slider } from "~/components/ui/slider"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
+import { Button } from "~/components/ui/button"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "~/components/ui/table"
 import { Badge } from "~/components/ui/badge"
+import axios from "axios"
 
 export default defineComponent({
     setup() {
         const paymentScheme = ref<"annuity" | "differentiated">("annuity")
-
         const assetPrice = ref(10_000_000)
         const advancePercent = ref(20)
         const termMonths = ref(36)
         const annualRate = ref(15)
+
+        // Результаты расчёта
+        const monthlyPayment = ref<number | null>(null)
+        const totalAmount = ref<number | null>(null)
+        const taxSaving = ref<number | null>(null)
+        const annualOverpayment = ref<number | null>(null)
+        const schedule = ref<any[]>([])
+
+        async function calculate() {
+            try {
+                const { data } = await axios.post("http://localhost:8000/api/calculate", {
+                    scheme: paymentScheme.value,
+                    asset_price: assetPrice.value,
+                    advance_percent: advancePercent.value,
+                    term_months: termMonths.value,
+                    annual_rate: annualRate.value
+                })
+
+                monthlyPayment.value = data.monthly_payment
+                totalAmount.value = data.total_amount
+                taxSaving.value = data.tax_saving
+                annualOverpayment.value = data.annual_overpayment_percent
+                schedule.value = data.schedule
+            } catch (e) {
+                console.error("Ошибка при расчёте", e)
+                alert("Ошибка при расчёте лизинга")
+            }
+        }
 
         return () => (
             <div class="space-y-6 max-w-6xl mx-auto p-6">
@@ -50,9 +79,13 @@ export default defineComponent({
                         <div class="space-y-2">
                             <Label>Стоимость имущества, ₽</Label>
                             <Input
-                                type="number"
-                                modelValue={assetPrice.value}
-                                onUpdate:modelValue={(v) => (assetPrice.value = Number(v))}
+                                type="text"
+                                value={assetPrice.value.toLocaleString("ru-RU")}
+                                onInput={(e: Event) => {
+                                    const target = e.target as HTMLInputElement
+                                    const rawValue = target.value.replace(/\s/g, "")
+                                    assetPrice.value = Number(rawValue)
+                                }}
                             />
                             <Slider
                                 min={0}
@@ -149,7 +182,7 @@ export default defineComponent({
                                 <span>30%</span>
                             </div>
                         </div>
-
+                        <Button onClick={calculate}>Рассчитать</Button>
                     </CardContent>
                 </Card>
 
@@ -162,22 +195,22 @@ export default defineComponent({
                     <CardContent class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <Label>Ежемесячный платёж</Label>
-                            <p class="text-xl font-bold">— ₽</p>
+                            <p class="text-xl font-bold">{monthlyPayment?.value ? monthlyPayment.value.toLocaleString("ru-RU") + " ₽" : "— ₽"}</p>
                         </div>
 
                         <div>
                             <Label>Сумма договора</Label>
-                            <p class="text-xl font-bold">— ₽</p>
+                            <p class="text-xl font-bold">{totalAmount?.value ? totalAmount.value.toLocaleString("ru-RU") + " ₽" : "— ₽"}</p>
                         </div>
 
                         <div>
                             <Label>Экономия на налогах</Label>
-                            <p class="text-xl font-bold text-green-600">— ₽</p>
+                            <p class="text-xl font-bold text-green-600">{taxSaving?.value ? taxSaving.value.toLocaleString("ru-RU") + " ₽" : "— ₽"}</p>
                         </div>
 
                         <div>
                             <Label>Годовое удорожание</Label>
-                            <Badge variant="outline">— %</Badge>
+                            <Badge variant="outline">{annualOverpayment?.value ?? "—"}%</Badge>
                         </div>
                     </CardContent>
                 </Card>
@@ -200,16 +233,27 @@ export default defineComponent({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <TableRow>
-                                    <TableCell colSpan={5} class="text-center text-muted-foreground">
-                                        Данные будут рассчитаны
-                                    </TableCell>
-                                </TableRow>
+                                {schedule.value.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} class="text-center text-muted-foreground">
+                                            Данные будут рассчитаны
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    schedule.value.map((item) => (
+                                        <TableRow key={item.month}>
+                                            <TableCell>{item.month}</TableCell>
+                                            <TableCell>{item.payment.toLocaleString("ru-RU")} ₽</TableCell>
+                                            <TableCell>{item.interest.toLocaleString("ru-RU")} ₽</TableCell>
+                                            <TableCell>{item.principal.toLocaleString("ru-RU")} ₽</TableCell>
+                                            <TableCell>{item.remaining_debt.toLocaleString("ru-RU")} ₽</TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </CardContent>
                 </Card>
-
             </div>
         )
     },
