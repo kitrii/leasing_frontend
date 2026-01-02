@@ -15,11 +15,19 @@ export default defineComponent({
         function statusClass(status: string) {
             switch (status) {
                 case 'Отправлена':
+                    return 'bg-gray-100 text-gray-800'
+                case 'В процессе обработки':
                     return 'bg-yellow-100 text-yellow-800'
                 case 'Одобрена':
                     return 'bg-green-100 text-green-800'
                 case 'Оформлен договор':
                     return 'bg-blue-100 text-blue-800'
+                case 'Завершена':
+                    return 'bg-purple-100 text-blue-800'
+                case 'Отклонена':
+                    return 'bg-red-100 text-blue-800'
+                case 'Отменена лизингополучателем':
+                    return 'bg-orange-100 text-blue-800'
                 default:
                     return 'bg-gray-100 text-gray-800'
             }
@@ -57,14 +65,14 @@ export default defineComponent({
 
         return() => (
             <div class={'overflow-x-auto'}>
-                <h1 class="text-xl font-bold">Мои договоры лизинга</h1>
+                <h1 class="text-xl font-bold">Договоры лизинга для обработки</h1>
 
                 <Table class="w-full">
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID заявки</TableHead>
                             <TableHead>ID клиента</TableHead> {/* ← НОВОЕ */}
-                            <TableHead>Оборудование</TableHead>
+                            <TableHead>ID Оборудования</TableHead>
                             <TableHead>Сумма</TableHead>
                             <TableHead>
                                 <Select
@@ -77,8 +85,12 @@ export default defineComponent({
                                     <SelectContent>
                                         <SelectItem value="all">Статус</SelectItem>
                                         <SelectItem value="Отправлена">Отправлена</SelectItem>
+                                        <SelectItem value="В процессе обработки">В процессе обработки</SelectItem>
                                         <SelectItem value="Одобрена">Одобрена</SelectItem>
                                         <SelectItem value="Оформлен договор">Оформлен договор</SelectItem>
+                                        <SelectItem value="Завершена">Завершена</SelectItem>
+                                        <SelectItem value="Отклонена">Отклонена</SelectItem>
+                                        <SelectItem value="Отменена лизингополучателем">Отменена лизингополучателем</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </TableHead>

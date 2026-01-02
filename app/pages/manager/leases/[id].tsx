@@ -18,8 +18,12 @@ export default defineComponent({
 
         const LEASE_STATUSES = [
             'Отправлена',
+            'В процессе обработки',
             'Одобрена',
             'Оформлен договор',
+            'Отклонена',
+            'Завершена',
+            // 'Отменена лизингополучателем' на такой статус может менять только создатель заявки!
         ]
 
         async function fetchLease() {
@@ -73,12 +77,29 @@ export default defineComponent({
                             <div class="grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <p class="text-muted-foreground">ID клиента</p>
-                                    <p class="font-mono">#{lease.value.user_id}</p>
+                                    <button
+                                        class="font-mono text-blue-600 hover:underline transition"
+                                        onClick={() =>
+                                            router.push(`/manager/users/${lease.value.user_id}`)
+                                        }
+                                    >
+                                        #{lease.value.user_id}
+                                    </button>
                                 </div>
 
+
                                 <div>
-                                    <p class="text-muted-foreground">Оборудование</p>
-                                    <p>{lease.value.equipment}</p>
+                                    <p class="text-muted-foreground">ID оборудования</p>
+                                    <button
+                                        class="font-mono text-blue-600 hover:underline transition"
+                                        onClick={() =>
+                                            router.push(
+                                                `/equipment/info/${lease.value.equipment}?fromLease=${lease.value.id}`
+                                            )
+                                        }
+                                    >
+                                        #{lease.value.equipment}
+                                    </button>
                                 </div>
 
                                 <div>

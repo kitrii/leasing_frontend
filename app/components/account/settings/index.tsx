@@ -10,7 +10,7 @@ import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import axios from "axios"
 import { toast } from "vue-sonner"
-import { Eye, EyeOff } from "lucide-vue-next" // иконки глаза
+import { Eye, EyeOff } from "lucide-vue-next"
 
 
 export default defineComponent({
@@ -95,7 +95,7 @@ export default defineComponent({
                                 <FieldLabel>Ваша роль в системе</FieldLabel>
                                 <Input disabled modelValue={role.value} />
                                 <FieldDescription>
-                                    Роль назначается администратором и не может быть изменена
+                                    Роль не может быть изменена
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
