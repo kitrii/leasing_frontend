@@ -1,25 +1,26 @@
 import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "~/components/ui/table";
 import axios from "axios";
 import {computed, onMounted} from "vue"
-import {useAuthStore} from "~/stores/auth";
+import {useCustomAuthStore} from "~/stores/auth";
+import { toast } from "vue-sonner"
 
 export default defineComponent({
     setup() {
-        const route = useRoute()
+        // const route = useRoute()
         // const userId = route.params.user_id as string
         const payments = ref<any[]>([])
         const loading = ref(false)
-        const auth = useAuthStore()
+        const auth = useCustomAuthStore()
         const userId = computed(() => auth.userId)
 
         async function fetchPayments() {
             loading.value = true
             try {
                 const response = await axios.get(
-                    'http://localhost:8000/api/payments/list',
+                    'http://localhost:8000/leases/payments/list',
                     {
                         params: {
-                            user_id: userId.value,
+                            user_id: userId.value
                         },
                     }
                 )
@@ -27,6 +28,7 @@ export default defineComponent({
                 payments.value = response.data.payments
             } catch (e) {
                 console.error('Ошибка загрузки заявок', e)
+                toast.error("Ошибка загрузки заявок")
             } finally {
                 loading.value = false
             }
@@ -40,8 +42,10 @@ export default defineComponent({
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Оборудование</TableHead>
+                            <TableHead>Id Оборудования</TableHead>
+                            <TableHead>Название оборудования</TableHead>
                             <TableHead>Сумма платежа</TableHead>
+                            <TableHead>Статус платежа</TableHead>
                             <TableHead>Дата платежа</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -49,14 +53,14 @@ export default defineComponent({
                     <TableBody>
                         {payments.value.map((payment) => (
                             <TableRow key={payment.id}>
-                                <TableCell>{payment.equipment}</TableCell>
+                                <TableCell>{payment.equipment_id}</TableCell>
+                                <TableCell>{payment.equipment_name}</TableCell>
                                 <TableCell>
                                     {payment.amount.toLocaleString("ru-RU")} ₽
                                 </TableCell>
+                                <TableCell>{payment.status}</TableCell>
                                 <TableCell>
-                                </TableCell>
-                                <TableCell>
-                                    {new Date(payment.created_at).toLocaleDateString()}
+                                    {new Date(payment.due_date).toLocaleDateString()}
                                 </TableCell>
                             </TableRow>
                         ))}

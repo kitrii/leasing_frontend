@@ -14,6 +14,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "~
 import { NuxtLink } from "#components"
 
 import axios from "axios"
+import { useCustomAuthStore } from '~/stores/auth'
 
 
 
@@ -21,14 +22,19 @@ export default defineComponent({
     setup() {
         /* ФИЛЬТРЫ */
         const price = ref([50_000_000])
-        const power = ref([50])
-        const year = ref([2020])
-        const type = ref("all")
+        const power = ref<[number, number]>([10, 150]) // кВт
+        const year = ref<[number, number]>([2000, 2024])
         const route = useRoute()
+        const userId = computed(() => auth.userId)
+
+
 
 
         const equipment = ref<any[]>([])
         const loading = ref(false)
+
+        const auth = useCustomAuthStore()
+        const isClient = computed(() => auth.role === 'client')
 
         async function fetchEquipment() {
             loading.value = true
@@ -53,15 +59,19 @@ export default defineComponent({
         const filteredEquipment = computed(() => {
             return equipment.value.filter((item) => {
                 const matchPrice = item.price <= price.value[0]
-                const matchPower = item.power <= power.value[0]
-                const matchYear = item.year >= year.value[0]
-                const matchType =
-                    type.value === "all" || item.type === type.value
 
-                return matchPrice && matchPower && matchYear && matchType
-                return true
+                const matchPower =
+                    item.power >= power.value[0] &&
+                    item.power <= power.value[1]
+
+                const matchYear =
+                    item.year >= year.value[0] &&
+                    item.year <= year.value[1]
+
+                return matchPrice && matchPower && matchYear
             })
         })
+
         function applyFilters() {
             const el = document.getElementById("results")
             el?.scrollIntoView({ behavior: "smooth" })
@@ -69,16 +79,19 @@ export default defineComponent({
 
         return () => (
             <div class="space-y-10">
-                {/* HERO */}
-                <section class="space-y-4">
-                    <h1 class="text-3xl font-bold">
-                        Металлообрабатывающее оборудование
-                    </h1>
-                    <p class="text-muted-foreground max-w-2xl">
-                        Токарные, фрезерные и лазерные станки для промышленного производства.
-                        Оформление в лизинг на выгодных условиях.
-                    </p>
+                {/* ЦЕНТРАЛЬНОЕ ОПИСАНИЕ */}
+                <section class="flex justify-center">
+                    <div class="max-w-3xl text-center space-y-4">
+                        <h1 class="text-4xl font-bold tracking-tight">
+                            Металлургическое оборудование
+                        </h1>
+                        <p class="text-lg text-muted-foreground">
+                            Токарные, фрезерные и лазерные станки для промышленного производства.
+                            Оформление в лизинг на выгодных условиях.
+                        </p>
+                    </div>
                 </section>
+
 
                 {/* ФИЛЬТРЫ */}
                 <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -109,60 +122,86 @@ export default defineComponent({
 
                     <div>
                         <label class="text-sm font-medium">Мощность, кВт</label>
+
+                        <div class="flex gap-2 mt-2">
+                            <Input
+                                type="number"
+                                placeholder="От"
+                                modelValue={power.value[0]}
+                                onUpdate:modelValue={(v) =>
+                                    (power.value = [Number(v), power.value[1]])
+                                }
+                            />
+                            <Input
+                                type="number"
+                                placeholder="До"
+                                modelValue={power.value[1]}
+                                onUpdate:modelValue={(v) =>
+                                    (power.value = [power.value[0], Number(v)])
+                                }
+                            />
+                        </div>
+
                         <Slider
                             min={1}
                             max={200}
+                            step={1}
                             modelValue={power.value}
-                            onUpdate:modelValue={(v) => (power.value = v)}
+                            onUpdate:modelValue={(v) => (power.value = v as [number, number])}
+                            class="mt-3"
                         />
-                        <div class="flex justify-between text-sm text-muted-foreground">
-                            <span>0</span>
-                            <span>50 кВт</span>
-                            <span>100 кВт</span>
-                            <span>150 кВт</span>
-                            <span>170 кВт</span>
+
+                        <div class="flex justify-between text-xs text-muted-foreground">
+                            <span>1</span>
+                            <span>50</span>
+                            <span>100</span>
+                            <span>150</span>
                             <span>200 кВт</span>
                         </div>
                     </div>
 
                     <div>
                         <label class="text-sm font-medium">Год выпуска</label>
+
+                        <div class="flex gap-2 mt-2">
+                            <Input
+                                type="number"
+                                placeholder="От"
+                                modelValue={year.value[0]}
+                                onUpdate:modelValue={(v) =>
+                                    (year.value = [Number(v), year.value[1]])
+                                }
+                            />
+                            <Input
+                                type="number"
+                                placeholder="До"
+                                modelValue={year.value[1]}
+                                onUpdate:modelValue={(v) =>
+                                    (year.value = [year.value[0], Number(v)])
+                                }
+                            />
+                        </div>
+
                         <Slider
-                            min={2000}
+                            min={1990}
                             max={2025}
+                            step={1}
                             modelValue={year.value}
-                            onUpdate:modelValue={(v) => (year.value = v)}
+                            onUpdate:modelValue={(v) => (year.value = v as [number, number])}
+                            class="mt-3"
                         />
-                        <div class="flex justify-between text-sm text-muted-foreground">
+
+                        <div class="flex justify-between text-xs text-muted-foreground">
+                            <span>1990</span>
                             <span>2000</span>
-                            <span>2005</span>
                             <span>2010</span>
                             <span>2020</span>
-                            <span>2021</span>
-                            <span>2022</span>
-                            <span>2023</span>
-                            <span>2024</span>
                             <span>2025</span>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="text-sm font-medium">Тип станка</label>
-                        <Select
-                            modelValue={type.value}
-                            onUpdate:modelValue={(v) => (type.value = v)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Все типы" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Все</SelectItem>
-                                <SelectItem value="lathe">Токарные</SelectItem>
-                                <SelectItem value="milling">Фрезерные</SelectItem>
-                                <SelectItem value="laser">Лазерные</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+
+
                 </section>
 
                 {/* КАРТОЧКИ */}
@@ -210,11 +249,20 @@ export default defineComponent({
                                     </div>
                                 </div>
 
-                                <Button asChild size="sm" class="mt-2 self-start">
-                                    <NuxtLink to={`/equipment/metalworking/${item.id}`}>
-                                        Подробнее
-                                    </NuxtLink>
-                                </Button>
+                                {isClient.value && (
+                                    <Button asChild size="sm" class="mt-2 self-start">
+                                        <NuxtLink
+                                            to={{
+                                                path: `/account/${userId.value}/createbid`,
+                                                query: {
+                                                    equipmentId: item.id,
+                                                },
+                                            }}
+                                        >
+                                            Создать заявку на оборудование
+                                        </NuxtLink>
+                                    </Button>
+                                )}
                             </div>
                         </Card>
                     ))}

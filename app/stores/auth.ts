@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 
-export const useAuthStore = defineStore('auth', {
+export const useCustomAuthStore = defineStore('auth', {
     state: () => ({
         isAuthenticated: false,
         userId: null as number | null,
-        role: null as 'client' | 'supplier' | 'manager' | null, // <-- добавили роль
+        role: null as 'client' | 'supplier' | 'manager' | null,
+        isReady: false, // 👈 ВАЖНО
     }),
 
     actions: {
@@ -15,7 +16,7 @@ export const useAuthStore = defineStore('auth', {
 
             localStorage.setItem(
                 'auth',
-                JSON.stringify({ userId })
+                JSON.stringify({ userId, role })
             )
         },
 
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = false
             this.userId = null
             this.role = null
+            this.isReady = false
             localStorage.removeItem('auth')
         },
 
@@ -34,6 +36,7 @@ export const useAuthStore = defineStore('auth', {
                 this.userId = parsed.userId
                 this.role = parsed.role ?? null
             }
+            this.isReady = true // 👈 ТОЛЬКО ЗДЕСЬ
         }
     }
 })

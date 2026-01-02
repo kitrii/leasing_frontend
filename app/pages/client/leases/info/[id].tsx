@@ -1,4 +1,5 @@
 import AccountLayout from "~/components/layout/account-layout";
+import AccountClientBidInfo from "~/components/account/client-bid-info/[id]";
 
 
 export default defineComponent({
@@ -6,7 +7,9 @@ export default defineComponent({
         return () => (
             <AccountLayout>
                 <div class={'flex min-h-svh flex-col items-center'}>
-                    Приветики вы в личном кабинете!
+                    <div class={'w-full'}>
+                        <AccountClientBidInfo/>
+                    </div>
                 </div>
             </AccountLayout>
         )

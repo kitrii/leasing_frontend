@@ -1,19 +1,15 @@
-import { useAuthStore } from '~/stores/auth'
+import { useCustomAuthStore } from '~/stores/auth'
 import {
     NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuIndicator,
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
-    NavigationMenuTrigger,
-    NavigationMenuViewport,
 } from '@/components/ui/navigation-menu'
 import {NuxtLink} from "#components";
 
 export default defineComponent({
     setup() {
-        const auth = useAuthStore()
+        const auth = useCustomAuthStore()
         const router = useRouter()
 
         const logout = () => {

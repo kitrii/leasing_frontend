@@ -2,22 +2,31 @@ import SidebarClient from "~/components/layout/sidebar-client"
 import SidebarSupplier from "~/components/layout/sidebar-supplier"
 import SidebarManager from "~/components/layout/sidebar-manager"
 import { Separator } from "~/components/ui/separator"
+import { useCustomAuthStore } from '~/stores/auth'
+import {Loader} from "lucide-vue-next";
 
 export default defineComponent({
     setup(_, { slots }) {
-        const auth = useAuthStore()
+        const auth = useCustomAuthStore()
 
 
         const SidebarByRole = computed(() => {
+            if (!auth.isReady) {
+                return <Loader />
+            }
+
             switch (auth.role) {
                 case 'supplier':
                     return <SidebarSupplier />
                 case 'manager':
                     return <SidebarManager />
-                default:
+                case 'client':
                     return <SidebarClient />
+                default:
+                    return null
             }
         })
+
 
         return () => (
             <div class="pb-16 space-y-6 w-full">

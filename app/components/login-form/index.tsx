@@ -2,7 +2,7 @@ import { defineComponent, ref } from "vue";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { useAuthStore } from "~/stores/auth";
+import { useCustomAuthStore } from "~/stores/auth";
 import axios from "axios";
 import { toast } from "vue-sonner";
 
@@ -11,7 +11,7 @@ export default defineComponent({
         const router = useRouter();
         const email = ref("");
         const password = ref("");
-        const auth = useAuthStore();
+        const auth = useCustomAuthStore();
 
         async function clickLoginButton() {
             try {

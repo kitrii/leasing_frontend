@@ -1,6 +1,6 @@
-import { useAuthStore } from '~/stores/auth'
+import { useCustomAuthStore } from '~/stores/auth'
 
 export default defineNuxtPlugin(() => {
-    const auth = useAuthStore()
+    const auth = useCustomAuthStore()
     auth.init()
 })
