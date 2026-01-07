@@ -23,6 +23,7 @@ export default defineComponent({
                 const userRole = response.data.role;
                 auth.login(userId, userRole);
                 router.push(`/account/${userId}`);
+                toast.info("Совершён успешный вход!");
             } catch (error) {
                 toast.error("При входе возникла ошибка!");
             }

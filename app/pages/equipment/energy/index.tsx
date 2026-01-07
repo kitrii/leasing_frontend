@@ -14,6 +14,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "~
 import { NuxtLink } from "#components"
 
 import axios from "axios"
+import {useCustomAuthStore} from "~/stores/auth";
 
 
 
@@ -24,11 +25,14 @@ export default defineComponent({
         const power = ref([50])
         const year = ref([2020])
         const type = ref("all")
-        const route = useRoute()
-
 
         const equipment = ref<any[]>([])
         const loading = ref(false)
+
+        const auth = useCustomAuthStore()
+        const isClient = computed(() => auth.role === 'client')
+        const userId = computed(() => auth.userId)
+
 
         async function fetchEquipment() {
             loading.value = true
@@ -211,11 +215,20 @@ export default defineComponent({
                                     </div>
                                 </div>
 
-                                <Button asChild size="sm" class="mt-2 self-start">
-                                    <NuxtLink to={`/equipment/energy/${item.id}`}>
-                                        Подробнее
-                                    </NuxtLink>
-                                </Button>
+                                {isClient.value && (
+                                    <Button asChild size="sm" class="mt-2 self-start">
+                                        <NuxtLink
+                                            to={{
+                                                path: `/account/${userId.value}/createbid`,
+                                                query: {
+                                                    equipmentId: item.id,
+                                                },
+                                            }}
+                                        >
+                                            Создать заявку на оборудование
+                                        </NuxtLink>
+                                    </Button>
+                                )}
                             </div>
                         </Card>
                     ))}
