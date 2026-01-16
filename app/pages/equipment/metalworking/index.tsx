@@ -1,85 +1,96 @@
-import { defineComponent, ref } from "vue"
+import { defineComponent, ref, computed, onMounted } from "vue"
+import { useRouter } from "vue-router"
 import { Slider } from "~/components/ui/slider"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-    CardFooter,
-} from "~/components/ui/card"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "~/components/ui/select"
+import { Card } from "~/components/ui/card"
 import { NuxtLink } from "#components"
-
 import axios from "axios"
-import { useCustomAuthStore } from '~/stores/auth'
-
-
+import { useCustomAuthStore } from "~/stores/auth"
+import { Scale } from "lucide-vue-next"
 
 export default defineComponent({
     setup() {
-        /* ФИЛЬТРЫ */
+        const router = useRouter()
+        const auth = useCustomAuthStore()
+
+        /* ===== ФИЛЬТРЫ ===== */
         const price = ref([50_000_000])
-        const power = ref<[number, number]>([10, 150]) // кВт
+        const power = ref<[number, number]>([10, 150])
         const year = ref<[number, number]>([2000, 2024])
-        const route = useRoute()
+
+        /* ===== ПОЛЬЗОВАТЕЛЬ ===== */
         const userId = computed(() => auth.userId)
+        const isClient = computed(() => auth.role === "client")
 
-
-
-
+        /* ===== ОБОРУДОВАНИЕ ===== */
         const equipment = ref<any[]>([])
         const loading = ref(false)
-
-        const auth = useCustomAuthStore()
-        const isClient = computed(() => auth.role === 'client')
 
         async function fetchEquipment() {
             loading.value = true
             try {
-                const response = await axios.get("http://127.0.0.1:8000/equipment/", {
-                    params: {
-                        type: "metalworking" // сюда передаем ключ типа, например "metalworking"
-                    },
+                const { data } = await axios.get("http://127.0.0.1:8000/equipment/", {
+                    params: { type: "metalworking" },
                 })
-                equipment.value = response.data.data
-            } catch (e) {
-                console.error("Ошибка загрузки оборудования", e)
+                equipment.value = data.data
             } finally {
                 loading.value = false
             }
         }
+
+        onMounted(fetchEquipment)
+
+        const filteredEquipment = computed(() =>
+            equipment.value.filter(item =>
+                item.price <= price.value[0] &&
+                item.power >= power.value[0] &&
+                item.power <= power.value[1] &&
+                item.year >= year.value[0] &&
+                item.year <= year.value[1]
+            )
+        )
+
+        /* ===== СРАВНЕНИЕ ===== */
+        const compareList = ref<any[]>([])
+        const MAX_COMPARE = 3
+
         onMounted(() => {
-            fetchEquipment()
+            const saved = localStorage.getItem("equipment-compare")
+            if (saved) compareList.value = JSON.parse(saved)
         })
 
+        function toggleCompare(item: any) {
+            const exists = compareList.value.some(i => i.id === item.id)
 
-        const filteredEquipment = computed(() => {
-            return equipment.value.filter((item) => {
-                const matchPrice = item.price <= price.value[0]
+            if (exists) {
+                compareList.value = compareList.value.filter(i => i.id !== item.id)
+            } else {
+                if (compareList.value.length >= MAX_COMPARE) {
+                    alert(`Можно сравнить не более ${MAX_COMPARE} единиц`)
+                    return
+                }
+                compareList.value.push(item)
+            }
 
-                const matchPower =
-                    item.power >= power.value[0] &&
-                    item.power <= power.value[1]
+            localStorage.setItem(
+                "equipment-compare",
+                JSON.stringify(compareList.value)
+            )
+        }
 
-                const matchYear =
-                    item.year >= year.value[0] &&
-                    item.year <= year.value[1]
+        function isInCompare(id: number) {
+            return compareList.value.some(i => i.id === id)
+        }
 
-                return matchPrice && matchPower && matchYear
-            })
-        })
-
-        function applyFilters() {
-            const el = document.getElementById("results")
-            el?.scrollIntoView({ behavior: "smooth" })
+        function clearCompare() {
+            compareList.value = []
+            localStorage.removeItem("equipment-compare")
         }
 
         return () => (
             <div class="space-y-10">
-                {/* ЦЕНТРАЛЬНОЕ ОПИСАНИЕ */}
+                {/* ===== ЗАГОЛОВОК ===== */}
                 <section class="flex justify-center">
                     <div class="max-w-3xl text-center space-y-4">
                         <h1 class="text-4xl font-bold tracking-tight">
@@ -92,7 +103,7 @@ export default defineComponent({
                     </div>
                 </section>
 
-
+                {/* ===== ФИЛЬТРЫ ===== */}
                 {/* ФИЛЬТРЫ */}
                 <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
@@ -204,25 +215,14 @@ export default defineComponent({
 
                 </section>
 
-                {/* КАРТОЧКИ */}
-                <section
-                    id="results"
-                    class="grid grid-cols-1 md:grid-cols-3 gap-6"
-                >
-                    {filteredEquipment.value.length === 0 && (
-                        <p class="text-muted-foreground col-span-full">
-                            По заданным параметрам оборудование не найдено
-                        </p>
-                    )}
-
-                    {filteredEquipment.value.map((item) => (
-                        <Card key={item.id} class="flex gap-4 p-4">
-                            {/* ЛЕВАЯ КОЛОНКА — КАРТИНКА */}
-                            <div class="w-28 h-28 flex-shrink-0 overflow-hidden rounded-md">
+                {/* ===== КАРТОЧКИ ===== */}
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {filteredEquipment.value.map(item => (
+                        <Card key={item.id} class="relative flex gap-4 p-4">
+                            <div class="w-28 h-28 overflow-hidden rounded-md">
                                 <img
                                     src={item.image_url}
-                                    class="h-full w-full object-cover"
-                                    alt={item.name}
+                                    class="w-full h-full object-cover"
                                 />
                             </div>
 
@@ -248,6 +248,18 @@ export default defineComponent({
                                         {item.price.toLocaleString("ru-RU")} ₽
                                     </div>
                                 </div>
+                                {/* КНОПКА СРАВНЕНИЯ */}
+                                <button
+                                    class={[
+                                        "absolute top-3 right-3 p-1 rounded-md border transition",
+                                        isInCompare(item.id)
+                                            ? "bg-primary text-white"
+                                            : "hover:bg-muted"
+                                    ]}
+                                    onClick={() => toggleCompare(item)}
+                                >
+                                    <Scale class="w-4 h-4" />
+                                </button>
 
                                 {isClient.value && (
                                     <Button asChild size="sm" class="mt-2 self-start">
@@ -262,11 +274,38 @@ export default defineComponent({
                                             Создать заявку на оборудование
                                         </NuxtLink>
                                     </Button>
-                                )}
+                                    )}
                             </div>
                         </Card>
                     ))}
                 </section>
+
+                {/* ===== ПАНЕЛЬ СРАВНЕНИЯ ===== */}
+                {compareList.value.length > 0 && (
+                    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white border shadow-lg rounded-xl px-4 py-3 flex gap-4 z-50">
+                        <span>
+                            Выбрано: <b>{compareList.value.length}</b>
+                        </span>
+
+                        <Button
+                            size="sm"
+                            onClick={() =>
+                                router.push({
+                                    path: "/equipment/compare",
+                                    query: {
+                                        ids: compareList.value.map(i => i.id).join(","),
+                                    },
+                                })
+                            }
+                        >
+                            Сравнить
+                        </Button>
+
+                        <Button size="sm" variant="ghost" onClick={clearCompare}>
+                            Очистить
+                        </Button>
+                    </div>
+                )}
             </div>
         )
     },
